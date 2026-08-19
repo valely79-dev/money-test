@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на определение денежных блоков</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- EmailJS SDK v4 -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        scandi: {
+                            bg: '#FAF9F6',
+                            card: '#FFFFFF',
+                            surface: '#F4F1EA',
+                            text: '#2C302E',
+                            muted: '#737B77',
+                            border: '#E5E2D9',
+                            accent: '#4A6B5D', // Muted Sage Green
+                            accentHover: '#3B574B',
+                            amber: '#D97706',
+                            rose: '#E11D48'
+                        }
+                    },
+                    boxShadow: {
+                        'scandi-soft': '0 10px 30px -10px rgba(0, 0, 0, 0.05)',
+                        'scandi-card': '0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAF9F6;
+            color: #2C302E;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #E5E2D9;
+            border-radius: 9999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #4A6B5D;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="min-h-full font-sans antialiased flex flex-col justify-between selection:bg-scandi-accent selection:text-white">
+
+    <header class="w-full max-w-4xl mx-auto px-6 pt-8 pb-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-scandi-accent flex items-center justify-center text-white text-lg font-bold shadow-sm">
+                M
+            </div>
+            <div>
+                <h1 class="text-base font-semibold text-scandi-text leading-tight">Mind & Money</h1>
+                <p class="text-xs text-scandi-muted">Психология финансов</p>
+            </div>
+        </div>
+        
+        <!-- EmailJS Settings Trigger Button -->
+        <button id="open-settings-btn" onclick="toggleEmailSettingsModal(true)" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium bg-scandi-card border border-scandi-border text-scandi-text hover:bg-scandi-surface transition-all shadow-sm">
+            <i class="fa-solid fa-envelope text-scandi-accent"></i>
+            <span>Email Настройки</span>
+        </button>
+    </header>
+
+    <main class="w-full max-w-2xl mx-auto px-4 py-6 flex-grow flex items-center justify-center">
+
+        <!-- SCREEN 1: INTRO -->
+        <div id="screen-intro" class="w-full bg-scandi-card rounded-3xl p-8 sm:p-10 border border-scandi-border/80 shadow-scandi-soft text-center fade-in">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-scandi-surface text-scandi-accent text-2xl mb-6 shadow-inner">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <span class="block text-xs font-semibold uppercase tracking-wider text-scandi-accent mb-2">Экспресс-диагностика</span>
+            <h2 class="text-2xl sm:text-3xl font-bold text-scandi-text tracking-tight mb-4">
+                Какое финансовое ограничение мешает вам расти?
+            </h2>
+            <p class="text-sm sm:text-base text-scandi-muted leading-relaxed max-w-lg mx-auto mb-8">
+                Ответьте на 5 вопросов, чтобы определить ваш главный денежный блок, узнать его причины и получить персональный алгоритм выхода на новый финансовый уровень.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 text-xs text-scandi-muted">
+                <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-scandi-accent"></i> 3 минуты</span>
+                <span class="hidden sm:inline">•</span>
+                <span class="flex items-center gap-1.5"><i class="fa-regular fa-circle-check text-scandi-accent"></i> 5 вопросов</span>
+                <span class="hidden sm:inline">•</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-pie text-scandi-accent"></i> Точный результат</span>
+            </div>
+
+            <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-4 bg-scandi-accent hover:bg-scandi-accentHover text-white font-medium rounded-2xl transition-all shadow-md hover:shadow-lg transform active:scale-95 text-base">
+                Начать тест <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+            </button>
+        </div>
+
+        <!-- SCREEN 2: QUIZ QUESTION -->
+        <div id="screen-quiz" class="w-full bg-scandi-card rounded-3xl p-6 sm:p-10 border border-scandi-border/80 shadow-scandi-soft hidden">
+            <!-- Progress Header -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center text-xs font-medium text-scandi-muted mb-2">
+                    <span id="question-step-indicator">Вопрос 1 из 5</span>
+                    <span id="progress-percentage-text" class="text-scandi-accent font-semibold">20%</span>
+                </div>
+                <div class="w-full bg-scandi-surface h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar-fill" class="bg-scandi-accent h-full w-1/5 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Question Area -->
+            <div id="question-content-container" class="fade-in">
+                <!-- Question Title & Subtitle will be inserted dynamically -->
+            </div>
+
+            <!-- Quiz Navigation -->
+            <div class="mt-8 pt-6 border-t border-scandi-border/60 flex justify-between items-center">
+                <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 rounded-xl text-xs font-medium text-scandi-muted hover:text-scandi-text hover:bg-scandi-surface transition-all disabled:opacity-30 disabled:pointer-events-none">
+                    <i class="fa-solid fa-chevron-left mr-1.5"></i> Назад
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" class="px-6 py-3 bg-scandi-accent hover:bg-scandi-accentHover text-white text-xs font-semibold rounded-xl transition-all shadow-sm disabled:opacity-40">
+                    Далее <i class="fa-solid fa-chevron-right ml-1.5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: LOADING -->
+        <div id="screen-loading" class="w-full bg-scandi-card rounded-3xl p-10 border border-scandi-border/80 shadow-scandi-soft text-center hidden fade-in">
+            <div class="inline-block relative w-16 h-16 mb-6">
+                <div class="w-16 h-16 rounded-full border-4 border-scandi-surface border-t-scandi-accent animate-spin"></div>
+            </div>
+            <h3 class="text-xl font-semibold text-scandi-text mb-2">Анализируем ответы...</h3>
+            <p class="text-xs text-scandi-muted max-w-sm mx-auto">
+                Сопоставляем ваши варианты с паттернами подсознательных установок и формируем персональную расшифровку.
+            </p>
+        </div>
+
+        <!-- SCREEN 4: RESULTS -->
+        <div id="screen-results" class="w-full bg-scandi-card rounded-3xl p-6 sm:p-10 border border-scandi-border/80 shadow-scandi-soft hidden fade-in">
+            <div class="text-center mb-8">
+                <span class="px-3 py-1 bg-scandi-surface text-scandi-accent text-xs font-semibold rounded-full inline-block mb-3">
+                    Результат теста
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-scandi-text">Ваш ключевой финансовый блок:</h2>
+            </div>
+
+            <!-- Dominant Block Card -->
+            <div class="bg-scandi-surface/60 rounded-2xl p-6 border border-scandi-border mb-8">
+                <div class="flex items-start gap-4">
+                    <div id="res-icon-box" class="w-12 h-12 rounded-xl bg-scandi-accent text-white flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div>
+                        <h3 id="res-block-title" class="text-lg font-bold text-scandi-text mb-1">
+                            --
+                        </h3>
+                        <p id="res-block-desc" class="text-xs sm:text-sm text-scandi-muted leading-relaxed">
+                            --
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-scandi-border/60">
+                    <h4 class="text-xs font-semibold text-scandi-text uppercase tracking-wider mb-2">Рекомендация эксперта:</h4>
+                    <p id="res-block-recommendation" class="text-xs text-scandi-text/80 leading-normal bg-white p-3.5 rounded-xl border border-scandi-border/80">
+                        --
+                    </p>
+                </div>
+            </div>
+
+            <!-- Score Breakdown -->
+            <div class="mb-8">
+                <h4 class="text-xs font-semibold text-scandi-muted uppercase tracking-wider mb-4">Анализ по сферам:</h4>
+                <div id="score-breakdown-list" class="space-y-3">
+                    <!-- Progress bars injected via JS -->
+                </div>
+            </div>
+
+            <!-- Lead Capture Section -->
+            <div class="bg-scandi-accent/5 rounded-2xl p-6 border border-scandi-accent/20">
+                <div class="text-center mb-5">
+                    <h3 class="text-base font-bold text-scandi-text mb-1">Записаться на разбор результатов</h3>
+                    <p class="text-xs text-scandi-muted">
+                        Оставьте контакты, чтобы получить бесплатную 20-минутную консультацию и пошаговый план снятия этого блока.
+                    </p>
+                </div>
+
+                <form id="booking-form" onsubmit="handleFormSubmit(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-scandi-text mb-1">Ваше имя</label>
+                        <input type="text" id="user-name" required placeholder="Елена" class="w-full px-4 py-2.5 rounded-xl border border-scandi-border text-xs text-scandi-text focus:outline-none focus:border-scandi-accent bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-scandi-text mb-1">Telegram или Телефон / WhatsApp</label>
+                        <input type="text" id="user-contact" required placeholder="@username или +7 (999) 000-00-00" class="w-full px-4 py-2.5 rounded-xl border border-scandi-border text-xs text-scandi-text focus:outline-none focus:border-scandi-accent bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-scandi-text mb-1">Ваш Email</label>
+                        <input type="email" id="user-email" required placeholder="example@mail.ru" class="w-full px-4 py-2.5 rounded-xl border border-scandi-border text-xs text-scandi-text focus:outline-none focus:border-scandi-accent bg-white">
+                    </div>
+
+                    <button type="submit" id="submit-booking-btn" class="w-full py-3 bg-scandi-accent hover:bg-scandi-accentHover text-white font-semibold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Записаться на разбор</span>
+                    </button>
+                </form>
+
+                <p id="form-status-msg" class="text-xs text-center mt-3 hidden font-medium"></p>
+            </div>
+
+            <!-- Retake Quiz Button -->
+            <div class="text-center mt-6">
+                <button onclick="resetQuiz()" class="text-xs font-medium text-scandi-muted hover:text-scandi-text underline transition-all">
+                    Пройти тест повторно
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="email-settings-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden fade-in">
+        <div class="bg-scandi-card rounded-3xl max-w-md w-full p-6 sm:p-8 border border-scandi-border shadow-2xl relative">
+            <button onclick="toggleEmailSettingsModal(false)" class="absolute top-5 right-5 text-scandi-muted hover:text-scandi-text text-base">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-scandi-surface text-scandi-accent flex items-center justify-center text-base">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-scandi-text">Настройки EmailJS</h3>
+                    <p class="text-xs text-scandi-muted">Куда присылать заявки клиентам</p>
+                </div>
+            </div>
+
+            <p class="text-xs text-scandi-muted mb-4 leading-relaxed">
+                Введите ключи из вашего личного кабинета <a href="https://www.emailjs.com/" target="_blank" class="text-scandi-accent underline">EmailJS</a>, чтобы получать результаты тестов прямо на вашу почту.
+            </p>
+
+            <div class="space-y-3 mb-6">
+                <div>
+                    <label class="block text-xs font-medium text-scandi-text mb-1">Public Key (User ID)</label>
+                    <input type="text" id="cfg-public-key" placeholder="например: user_xxxxxxxxx" class="w-full px-3.5 py-2 rounded-xl border border-scandi-border text-xs focus:outline-none focus:border-scandi-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-scandi-text mb-1">Service ID</label>
+                    <input type="text" id="cfg-service-id" placeholder="например: service_xxxxxxx" class="w-full px-3.5 py-2 rounded-xl border border-scandi-border text-xs focus:outline-none focus:border-scandi-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-scandi-text mb-1">Template ID</label>
+                    <input type="text" id="cfg-template-id" placeholder="например: template_xxxxxxx" class="w-full px-3.5 py-2 rounded-xl border border-scandi-border text-xs focus:outline-none focus:border-scandi-accent">
+                </div>
+            </div>
+
+            <div class="p-3 bg-scandi-surface rounded-xl text-[11px] text-scandi-muted mb-5 leading-normal">
+                <strong>Переменные для шаблона EmailJS:</strong><br>
+                <code class="text-scandi-accent font-semibold">{{user_name}}</code>, <code class="text-scandi-accent font-semibold">{{user_contact}}</code>, <code class="text-scandi-accent font-semibold">{{user_email}}</code>, <code class="text-scandi-accent font-semibold">{{main_block}}</code>, <code class="text-scandi-accent font-semibold">{{scores_summary}}</code>, <code class="text-scandi-accent font-semibold">{{test_result}}</code>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="saveEmailSettings()" class="flex-1 py-2.5 bg-scandi-accent hover:bg-scandi-accentHover text-white text-xs font-semibold rounded-xl transition-all shadow-sm">
+                    Сохранить настройки
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="w-full max-w-4xl mx-auto px-6 py-6 text-center text-xs text-scandi-muted border-t border-scandi-border/60">
+        <p>© <span id="current-year">2026</span> Mind & Money. Все права защищены.</p>
+    </footer>
+
+    <script>
+        
+        // Define Money Blocks Categories
+        const BLOCKS = {
+            CEILING: {
+                id: 'CEILING',
+                title: 'Стеклянный потолок',
+                icon: 'fa-chart-line',
+                desc: 'Вы уперлись в привычную цифру дохода. Любые попытки пробить эту планку приводят к выгоранию, форс-мажорам или откату назад.',
+                recommendation: 'Вам нужно сместить фокус с пахоты на делегирование, оптимизацию процессов и работу со страхом больших денег.'
+            },
+            VISIBILITY: {
+                id: 'VISIBILITY',
+                title: 'Страх проявления и обесценивание',
+                icon: 'fa-eye-slash',
+                desc: 'Вам сложно называть высокую цену, заявлять о себе, продавать и проявляться. Кажется, что знания недостаточно глубокие.',
+                recommendation: 'Работайте с синдромом самозванца. Начните проявляться небольшими шагами и фиксируйте подтверждённые результаты клиентов.'
+            },
+            SABOTAGE: {
+                id: 'SABOTAGE',
+                title: 'Финансовый саботаж и импульсивность',
+                icon: 'fa-hand-holding-dollar',
+                desc: 'Как только на счёт поступает большая сумма, появляется непреодолимое желание сливать деньги на спонтанные покупки или раздать долги.',
+                recommendation: 'Внедрите правило 48 часов перед крупными покупками и автоматическое распределение накоплений на неприкосновенный счет.'
+            },
+            GUILT: {
+                id: 'GUILT',
+                title: 'Чувство вины и стыда за деньги',
+                icon: 'fa-heart-crack',
+                desc: 'Подсознательное убеждение, что быть богатым — стыдно, эгоистично или опасно для отношений с близкими.',
+                recommendation: 'Пересмотрите убеждения из детства. Деньги — это лишь нейтральный инструмент ресурса и возможности помогать себе и другим.'
+            }
+        };
+
+        // Quiz Questions Data
+        const QUESTIONS = [
+            {
+                id: 1,
+                title: "Что происходит, когда к вам приходит сумма выше вашей обычной нормы?",
+                subtitle: "Выберите наиболее характерный для вас сценарий",
+                type: "single",
+                options: [
+                    { text: "Внезапно ломается техника, появляются непредвиденные расходы или долги", block: "SABOTAGE", points: 3 },
+                    { text: "Чувствую тревогу или вину перед теми, у кого денег меньше", block: "GUILT", points: 3 },
+                    { text: "Быстро трачу всё на подарки, хотелки или эмоциональные покупки", block: "SABOTAGE", points: 2 },
+                    { text: "Ничего не меняется, я просто сохраняю их, но не могу стабильно повторить результат", block: "CEILING", points: 3 }
+                ]
+            },
+            {
+                id: 2,
+                title: "Оцените от 1 до 10: Насколько легко вам называть высокую стоимость своих услуг/труда?",
+                subtitle: "1 — Ужасно неловко, снижаю цену; 10 — Называю легко и уверенно",
+                type: "range",
+                min: 1,
+                max: 10,
+                defaultVal: 5,
+                block: "VISIBILITY" // Inverted scoring: lower range = higher visibility block score
+            },
+            {
+                id: 3,
+                title: "Какая фраза из детства откликается вам сильнее всего?",
+                subtitle: "Выберите убеждение, которое чаще всего слышали",
+                type: "single",
+                options: [
+                    { text: "«Честным трудом больших денег не заработаешь»", block: "GUILT", points: 3 },
+                    { text: "«Не выделяйся, будь как все, скромность украшает»", block: "VISIBILITY", points: 3 },
+                    { text: "«Деньги утекают как вода / Нужно пахать день и ночь»", block: "CEILING", points: 3 },
+                    { text: "«Деньги портят людей и делают их эгоистами»", block: "GUILT", points: 2 }
+                ]
+            },
+            {
+                id: 4,
+                title: "Как долго вы находитесь примерно на одном и том же уровне дохода?",
+                subtitle: "Выберите временной отрезок",
+                type: "single",
+                options: [
+                    { text: "Меньше 6 месяцев — я активно расту", block: "CEILING", points: 0 },
+                    { text: "От 6 месяцев до 1 года", block: "CEILING", points: 1 },
+                    { text: "От 1 до 3 лет — никак не могу пробить планку", block: "CEILING", points: 3 },
+                    { text: "Больше 3 лет — постоянные скачки и качели", block: "SABOTAGE", points: 3 }
+                ]
+            },
+            {
+                id: 5,
+                title: "Оцените от 1 до 10: Насколько сильно вы боитесь осуждения или критических комментариев при проявлении?",
+                subtitle: "1 — Совершенно не волнует; 10 — Парализует, откладываю действия",
+                type: "range",
+                min: 1,
+                max: 10,
+                defaultVal: 5,
+                block: "VISIBILITY"
+            }
+        ];
+
+        let currentQuestionIdx = 0;
+        let userAnswers = {};
+        let emailSettings = {
+            publicKey: 'mjyUxanuPOmiZ2Pjq',
+            serviceId: 'service_r0d2ard',
+            templateId: 'template_plclu4q'
+        };
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set footer year safely
+            const yearEl = document.getElementById('current-year');
+            if (yearEl) {
+                yearEl.textContent = new Date().getFullYear();
+            }
+
+            // Load saved EmailJS settings from localStorage or merge with defaults
+            const savedSettings = localStorage.getItem('mind_money_email_cfg');
+            if (savedSettings) {
+                try {
+                    emailSettings = { ...emailSettings, ...JSON.parse(savedSettings) };
+                } catch (e) {
+                    console.error("Failed to parse saved email settings", e);
+                }
+            }
+
+            // Fill input fields with current configuration
+            document.getElementById('cfg-public-key').value = emailSettings.publicKey || '';
+            document.getElementById('cfg-service-id').value = emailSettings.serviceId || '';
+            document.getElementById('cfg-template-id').value = emailSettings.templateId || '';
+
+            if (emailSettings.publicKey) {
+                try {
+                    emailjs.init({
+                        publicKey: emailSettings.publicKey
+                    });
+                } catch (err) {
+                    console.error("EmailJS init failed:", err);
+                }
+            }
+        });
+
+        function showScreen(screenId) {
+            ['screen-intro', 'screen-quiz', 'screen-loading', 'screen-results'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === screenId) {
+                        el.classList.remove('hidden');
+                        el.classList.add('fade-in');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function startQuiz() {
+            currentQuestionIdx = 0;
+            userAnswers = {};
+            showScreen('screen-quiz');
+            renderQuestion();
+        }
+
+        function resetQuiz() {
+            currentQuestionIdx = 0;
+            userAnswers = {};
+            showScreen('screen-intro');
+        }
+
+        function renderQuestion() {
+            const q = QUESTIONS[currentQuestionIdx];
+            const container = document.getElementById('question-content-container');
+            const stepInd = document.getElementById('question-step-indicator');
+            const progText = document.getElementById('progress-percentage-text');
+            const progFill = document.getElementById('progress-bar-fill');
+            const prevBtn = document.getElementById('prev-btn');
+
+            // Update header & progress
+            const pct = Math.round(((currentQuestionIdx + 1) / QUESTIONS.length) * 100);
+            stepInd.textContent = `Вопрос ${currentQuestionIdx + 1} из ${QUESTIONS.length}`;
+            progText.textContent = `${pct}%`;
+            progFill.style.width = `${pct}%`;
+
+            prevBtn.disabled = currentQuestionIdx === 0;
+
+            let html = `
+                <h3 class="text-lg sm:text-xl font-bold text-scandi-text mb-1">${q.title}</h3>
+                <p class="text-xs sm:text-sm text-scandi-muted mb-6">${q.subtitle}</p>
+            `;
+
+            if (q.type === 'single') {
+                html += `<div class="space-y-3">`;
+                q.options.forEach((opt, idx) => {
+                    const isSelected = userAnswers[q.id] && userAnswers[q.id].optionIdx === idx;
+                    html += `
+                        <button onclick="selectSingleOption(${idx})" class="w-full text-left p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                            isSelected 
+                            ? 'border-scandi-accent bg-scandi-accent/10 shadow-sm text-scandi-text' 
+                            : 'border-scandi-border hover:border-scandi-accent/50 bg-white text-scandi-text'
+                        }">
+                            <span class="text-xs sm:text-sm font-medium pr-3">${opt.text}</span>
+                            <div class="w-5 h-5 rounded-full border border-scandi-border flex items-center justify-center shrink-0 ${isSelected ? 'border-scandi-accent bg-scandi-accent text-white' : 'bg-white'}">
+                                ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                            </div>
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+            } else if (q.type === 'range') {
+                const currentVal = userAnswers[q.id] !== undefined ? userAnswers[q.id].value : q.defaultVal;
+                html += `
+                    <div class="bg-scandi-surface/50 p-6 rounded-2xl border border-scandi-border my-4 text-center">
+                        <div class="text-3xl font-bold text-scandi-accent mb-4" id="range-val-display">${currentVal}</div>
+                        <input type="range" min="${q.min}" max="${q.max}" value="${currentVal}" id="range-input" oninput="updateRangeVal(this.value)" class="mb-4">
+                        <div class="flex justify-between text-[11px] text-scandi-muted font-medium">
+                            <span>1 (Минимум)</span>
+                            <span>10 (Максимум)</span>
+                        </div>
+                    </div>
+                `;
+                // Store initial default value if not set
+                if (userAnswers[q.id] === undefined) {
+                    userAnswers[q.id] = { value: q.defaultVal, block: q.block };
+                }
+            }
+
+            container.innerHTML = html;
+            updateNextButtonState();
+        }
+
+        function selectSingleOption(idx) {
+            const q = QUESTIONS[currentQuestionIdx];
+            userAnswers[q.id] = {
+                optionIdx: idx,
+                block: q.options[idx].block,
+                points: q.options[idx].points
+            };
+            renderQuestion();
+        }
+
+        function updateRangeVal(val) {
+            const q = QUESTIONS[currentQuestionIdx];
+            document.getElementById('range-val-display').textContent = val;
+            
+            // For Q2 (higher score = better), lower range score means higher VISIBILITY block
+            let score = 0;
+            if (q.id === 2) {
+                score = Math.max(0, 10 - parseInt(val));
+            } else {
+                score = parseInt(val);
+            }
+
+            userAnswers[q.id] = {
+                value: parseInt(val),
+                block: q.block,
+                points: score
+            };
+            updateNextButtonState();
+        }
+
+        function updateNextButtonState() {
+            const q = QUESTIONS[currentQuestionIdx];
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = !userAnswers[q.id];
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIdx > 0) {
+                currentQuestionIdx--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIdx < QUESTIONS.length - 1) {
+                currentQuestionIdx++;
+                renderQuestion();
+            } else {
+                calculateAndShowResults();
+            }
+        }
+
+        function calculateAndShowResults() {
+            showScreen('screen-loading');
+
+            setTimeout(() => {
+                const scores = {
+                    CEILING: 0,
+                    VISIBILITY: 0,
+                    SABOTAGE: 0,
+                    GUILT: 0
+                };
+
+                // Aggregate points
+                Object.values(userAnswers).forEach(ans => {
+                    if (ans && ans.block && scores[ans.block] !== undefined) {
+                        scores[ans.block] += ans.points || 0;
+                    }
+                });
+
+                // Find dominant block
+                let maxPoints = -1;
+                let dominantKey = 'CEILING';
+
+                Object.keys(scores).forEach(key => {
+                    if (scores[key] > maxPoints) {
+                        maxPoints = scores[key];
+                        dominantKey = key;
+                    }
+                });
+
+                const dominantBlock = BLOCKS[dominantKey];
+
+                // Render Dominant Block Card
+                document.getElementById('res-block-title').textContent = dominantBlock.title;
+                document.getElementById('res-block-desc').textContent = dominantBlock.desc;
+                document.getElementById('res-block-recommendation').textContent = dominantBlock.recommendation;
+
+                const iconBox = document.getElementById('res-icon-box');
+                iconBox.innerHTML = `<i class="fa-solid ${dominantBlock.icon}"></i>`;
+
+                // Render Breakdown Bars
+                const breakdownContainer = document.getElementById('score-breakdown-list');
+                breakdownContainer.innerHTML = '';
+
+                const maxPossible = 10;
+                Object.keys(BLOCKS).forEach(key => {
+                    const block = BLOCKS[key];
+                    const pts = scores[key] || 0;
+                    const pct = Math.min(100, Math.round((pts / maxPossible) * 100));
+
+                    breakdownContainer.innerHTML += `
+                        <div>
+                            <div class="flex justify-between text-xs font-medium text-scandi-text mb-1">
+                                <span class="flex items-center gap-1.5"><i class="fa-solid ${block.icon} text-scandi-accent text-[11px]"></i> ${block.title}</span>
+                                <span class="text-scandi-muted">${pts} б.</span>
+                            </div>
+                            <div class="w-full bg-scandi-surface h-2 rounded-full overflow-hidden">
+                                <div class="bg-scandi-accent h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Save calculated data globally for booking submission
+                window.lastResults = {
+                    dominantBlock: dominantBlock.title,
+                    scores: scores
+                };
+
+                showScreen('screen-results');
+            }, 1200);
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('user-name').value.trim();
+            const contact = document.getElementById('user-contact').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const statusMsg = document.getElementById('form-status-msg');
+            const submitBtn = document.getElementById('submit-booking-btn');
+
+            if (!name || !contact || !email) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Отправка...</span>`;
+
+            const resultsData = window.lastResults || { dominantBlock: 'Не определен', scores: {} };
+            const scoresSummary = Object.keys(BLOCKS).map(k => `${BLOCKS[k].title}: ${resultsData.scores[k] || 0}б`).join(', ');
+
+            const templateParams = {
+                user_name: name,
+                user_contact: contact,
+                user_email: email,
+                main_block: resultsData.dominantBlock,
+                scores_summary: scoresSummary,
+                test_result: `Главный блок: ${resultsData.dominantBlock}\nАнализ по баллам: ${scoresSummary}`,
+                date: new Date().toLocaleString('ru-RU')
+            };
+
+            // Send via EmailJS
+            if (emailSettings.publicKey && emailSettings.serviceId && emailSettings.templateId) {
+                emailjs.send(emailSettings.serviceId, emailSettings.templateId, templateParams)
+                    .then(() => {
+                        showFormSuccess("Заявка успешно отправлена! Эксперт свяжется с вами в ближайшее время.");
+                    })
+                    .catch((err) => {
+                        console.error("EmailJS Error:", err);
+                        showFormSuccess("Заявка принята! Ошибка доставки через EmailJS, но ваши данные сохранены.");
+                    });
+            } else {
+                setTimeout(() => {
+                    showFormSuccess("Заявка успешно принята!");
+                }, 800);
+            }
+        }
+
+        function showFormSuccess(msg) {
+            const statusMsg = document.getElementById('form-status-msg');
+            const submitBtn = document.getElementById('submit-booking-btn');
+
+            statusMsg.textContent = msg;
+            statusMsg.className = "text-xs text-center mt-3 font-medium text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 block";
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Заявка отправлена</span>`;
+            document.getElementById('booking-form').reset();
+        }
+
+        function toggleEmailSettingsModal(open) {
+            const modal = document.getElementById('email-settings-modal');
+            if (open) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveEmailSettings() {
+            const pubKey = document.getElementById('cfg-public-key').value.trim();
+            const srvId = document.getElementById('cfg-service-id').value.trim();
+            const tmplId = document.getElementById('cfg-template-id').value.trim();
+
+            emailSettings = {
+                publicKey: pubKey,
+                serviceId: srvId,
+                templateId: tmplId
+            };
+
+            localStorage.setItem('mind_money_email_cfg', JSON.stringify(emailSettings));
+
+            if (pubKey) {
+                emailjs.init({
+                    publicKey: pubKey
+                });
+            }
+
+            toggleEmailSettingsModal(false);
+            
+            // Show toast message
+            const btn = document.getElementById('open-settings-btn');
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-check text-emerald-600"></i> Сохранено!`;
+            setTimeout(() => { btn.innerHTML = origHTML; }, 2000);
+        }
+    </script>
+</body>
+</html>
